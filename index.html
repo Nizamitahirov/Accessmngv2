@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bravo Access Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ===========================================
+       Bravo DESIGN SYSTEM
+       =========================================== */
+    :root {
+      --bb-red: #ED1C24;
+      --bb-red-hover: #D0121A;
+      --bb-black: #1A1A1A;
+      --bb-dark-gray: #333333;
+      --bb-gray: #6B7280;
+      --bb-light-gray: #F3F4F6;
+      --bb-border: #E5E7EB;
+      --bb-white: #FFFFFF;
+      
+      --status-success-bg: #D1FAE5;
+      --status-success-text: #065F46;
+      --status-pending-bg: #FEF3C7;
+      --status-pending-text: #92400E;
+      --status-rejected-bg: #FEE2E2;
+      --status-rejected-text: #991B1B;
+
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+    
+    body { background-color: #F9FAFB; color: var(--bb-black); font-size: 14px; }
+
+    /* HEADER */
+    .header {
+      background: var(--bb-white);
+      border-bottom: 1px solid var(--bb-border);
+      padding: 0 2rem;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-logo { font-size: 24px; font-weight: 800; color: var(--bb-red); letter-spacing: -0.5px; }
+    .brand-divider { height: 24px; width: 1px; background: var(--bb-border); }
+    .brand-title { font-size: 14px; font-weight: 600; color: var(--bb-gray); text-transform: uppercase; }
+
+    /* BUTTONS */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;
+      transition: all 0.2s ease; font-size: 14px; border: none;
+    }
+    
+    .btn-primary { background: var(--bb-red); color: white; }
+    .btn-primary:hover { background: var(--bb-red-hover); transform: translateY(-1px); }
+    
+    .btn-secondary { background: white; color: var(--bb-black); border: 1px solid var(--bb-border); }
+    .btn-secondary:hover { background: var(--bb-light-gray); border-color: var(--bb-gray); }
+
+    .btn-danger { background: #FEE2E2; color: #991B1B; }
+    .btn-danger:hover { background: #FECACA; }
+
+    .btn-icon { padding: 8px; border-radius: 8px; background: transparent; border: none; cursor: pointer; color: var(--bb-gray); }
+    .btn-icon:hover { background: var(--bb-light-gray); color: var(--bb-black); }
+    .btn-icon.active { background: white; color: var(--bb-red); box-shadow: var(--shadow-sm); border: 1px solid var(--bb-border); }
+
+    /* TABS */
+    .tabs-container { background: white; padding: 0 2rem; border-bottom: 1px solid var(--bb-border); margin-bottom: 2rem; }
+    .tabs { display: flex; gap: 30px; }
+    .tab {
+      padding: 16px 0; font-weight: 500; color: var(--bb-gray); cursor: pointer;
+      border-bottom: 2px solid transparent; transition: all 0.2s;
+    }
+    .tab:hover { color: var(--bb-black); }
+    .tab.active { color: var(--bb-red); border-bottom-color: var(--bb-red); font-weight: 600; }
+
+    /* MAIN CONTENT */
+    .container { max-width: 1440px; margin: 0 auto; padding: 0 2rem 4rem; }
+    
+    .toolbar {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;
+      background: white; padding: 1rem; border-radius: var(--radius); border: 1px solid var(--bb-border);
+    }
+    
+    .filter-group { display: flex; gap: 10px; }
+    
+    .input-field {
+      padding: 10px 14px; border: 1px solid var(--bb-border); border-radius: 8px;
+      outline: none; font-size: 14px; min-width: 200px;
+    }
+    .input-field:focus { border-color: var(--bb-red); box-shadow: 0 0 0 2px rgba(237, 28, 36, 0.1); }
+
+    .view-toggles {
+      display: flex; background: var(--bb-light-gray); padding: 4px; border-radius: 8px; gap: 2px;
+    }
+
+    /* VIEW: TABLE */
+    .table-wrapper {
+      background: white; border-radius: var(--radius); border: 1px solid var(--bb-border);
+      overflow-x: auto; box-shadow: var(--shadow-sm);
+    }
+    table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+    thead { background: #F9FAFB; border-bottom: 1px solid var(--bb-border); }
+    th {
+      text-align: left; padding: 12px 20px; font-weight: 600; color: var(--bb-gray);
+      font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    td { padding: 16px 20px; border-bottom: 1px solid var(--bb-border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: #FEF2F2; }
+
+    /* VIEW: CARD */
+    .grid-view { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+    .card {
+      background: white; border: 1px solid var(--bb-border); border-radius: var(--radius);
+      padding: 20px; transition: all 0.2s; position: relative; overflow: hidden;
+    }
+    .card:hover { border-color: #FECACA; transform: translateY(-3px); box-shadow: var(--shadow-md); }
+    .card-header { display: flex; justify-content: space-between; margin-bottom: 12px; }
+    .card-title { font-weight: 700; font-size: 16px; color: var(--bb-black); }
+    .card-subtitle { font-size: 13px; color: var(--bb-gray); margin-top: 4px; }
+    .card-meta { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--bb-border); display: flex; justify-content: space-between; align-items: center; }
+
+    /* VIEW: MATRIX (SHEET) */
+    .matrix-wrapper {
+      background: white; border: 1px solid var(--bb-border); height: 70vh; overflow: auto;
+    }
+    .matrix-table { border-collapse: separate; border-spacing: 0; width: 100%; font-family: 'Roboto Mono', monospace; font-size: 13px; }
+    .matrix-table th {
+      background: #F3F3F3; position: sticky; top: 0; z-index: 10;
+      border-right: 1px solid #ddd; border-bottom: 1px solid #ddd; padding: 8px 12px;
+    }
+    .matrix-table td {
+      border-right: 1px solid #eee; border-bottom: 1px solid #eee; padding: 6px 12px; background: white;
+    }
+    .matrix-row-num {
+      position: sticky; left: 0; z-index: 5; background: #F3F3F3 !important;
+      border-right: 2px solid #ccc !important; text-align: center; font-weight: bold; width: 50px;
+    }
+
+    /* BADGES & STATUS */
+    .badge {
+      display: inline-flex; align-items: center; px: 10px; padding: 4px 10px;
+      border-radius: 20px; font-weight: 700; font-size: 11px; text-transform: uppercase;
+    }
+    .badge-active { background: var(--status-success-bg); color: var(--status-success-text); }
+    .badge-approved { background: var(--status-success-bg); color: var(--status-success-text); }
+    .badge-pending { background: var(--status-pending-bg); color: var(--status-pending-text); }
+    .badge-rejected { background: var(--status-rejected-bg); color: var(--status-rejected-text); }
+
+    .step-dots { display: flex; gap: 4px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--bb-border); }
+    .dot.approved { background: var(--status-success-text); }
+    .dot.rejected { background: var(--status-rejected-text); }
+    .dot.pending { background: var(--status-pending-text); }
+
+    /* MODAL */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); backdrop-filter: blur(2px);
+      display: none; align-items: center; justify-content: center; z-index: 1000;
+    }
+    .modal-overlay.active { display: flex; }
+    
+    .modal {
+      background: white; width: 600px; max-width: 95%; border-radius: 16px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); overflow: hidden;
+    }
+    .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--bb-border); display: flex; justify-content: space-between; align-items: center; }
+    .modal-body { padding: 24px; max-height: 70vh; overflow-y: auto; }
+    .modal-footer { padding: 16px 24px; background: #F9FAFB; border-top: 1px solid var(--bb-border); display: flex; justify-content: flex-end; gap: 12px; }
+    
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-weight: 500; font-size: 13px; margin-bottom: 6px; color: var(--bb-dark-gray); }
+    
+    /* APPROVAL WIDGET */
+    .approval-flow { display: flex; justify-content: space-between; margin: 30px 0; position: relative; }
+    .approval-flow::before {
+      content: ''; position: absolute; top: 15px; left: 0; width: 100%; height: 2px; background: var(--bb-border); z-index: 0;
+    }
+    .flow-step { position: relative; z-index: 1; text-align: center; flex: 1; }
+    .step-icon {
+      width: 32px; height: 32px; background: white; border: 2px solid var(--bb-border); border-radius: 50%;
+      margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px;
+    }
+    .flow-step.approved .step-icon { background: var(--status-success-text); border-color: var(--status-success-text); color: white; }
+    .flow-step.rejected .step-icon { background: var(--status-rejected-text); border-color: var(--status-rejected-text); color: white; }
+    .flow-step.active .step-icon { border-color: var(--bb-red); color: var(--bb-red); box-shadow: 0 0 0 4px #FEE2E2; }
+    .step-label { font-size: 11px; font-weight: 600; color: var(--bb-gray); text-transform: uppercase; }
+
+    /* UTILS */
+    .loading-screen {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .spinner {
+      width: 50px; height: 50px; border: 4px solid var(--bb-light-gray); border-top-color: var(--bb-red);
+      border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 1rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .toast {
+      position: fixed; bottom: 20px; right: 20px; background: var(--bb-dark-gray); color: white;
+      padding: 12px 20px; border-radius: 8px; display: flex; align-items: center; gap: 10px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); transform: translateY(100px); opacity: 0; transition: all 0.3s;
+    }
+    .toast.active { transform: translateY(0); opacity: 1; }
+    .toast.error { background: #991B1B; }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <!-- LOADING SCREEN -->
+  <div class="loading-screen" id="global-loader">
+    <div class="spinner"></div>
+    <div style="font-weight: 600; font-size: 16px;">Bravo Access Management</div>
+    <div style="color: var(--bb-gray); font-size: 13px;">Sistem yüklənir...</div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="brand">
+      <div class="brand-logo">Bravo</div>
+      <div class="brand-divider"></div>
+      <div class="brand-title">Access İdarəetmə</div>
+    </div>
+    <div>
+      <button class="btn btn-secondary" onclick="loadData(true)">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+        Yenilə
+      </button>
+    </div>
+  </header>
+
+  <!-- NAVIGATION -->
+  <div class="tabs-container">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('user')">İstifadəçi İcazələri</div>
+      <div class="tab" onclick="switchTab('internet')">İnternet İcazələri</div>
+      <div class="tab" onclick="switchTab('approvers')">Təsdiqedicilər</div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <div class="container">
+    
+    <!-- CONTROLS -->
+    <div class="toolbar" id="main-toolbar">
+      <div class="filter-group">
+        <input type="text" class="input-field" id="search-input" placeholder="Axtarış (Ad, ID, Dept)..." onkeyup="renderCurrentView()">
+        <select class="input-field" id="filter-dept" onchange="renderCurrentView()">
+          <option value="">Bütün Departamentlər</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <div class="view-toggles">
+          <button class="btn-icon active" onclick="switchView('table')" title="Cədvəl">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>
+          </button>
+          <button class="btn-icon" onclick="switchView('card')" title="Kartlar">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          </button>
+          <button class="btn-icon" onclick="switchView('matrix')" title="Matrix (Sheet)">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3zM3 9h18M3 15h18M9 3v18M15 3v18"></path></svg>
+          </button>
+        </div>
+        <button class="btn btn-primary" onclick="openCreateModal()">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"></path></svg>
+          Yeni İcazə
+        </button>
+      </div>
+    </div>
+
+    <!-- CONTENT AREAS -->
+    <div id="content-area"></div>
+
+    <!-- APPROVERS TABLE (Static View) -->
+    <div id="approvers-area" class="hidden">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Departament</th>
+              <th>Şöbə</th>
+              <th>Dep Rəhbəri</th>
+              <th>IT Head</th>
+              <th>InfoSec</th>
+              <th>IT Director</th>
+            </tr>
+          </thead>
+          <tbody id="approvers-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CREATE MODAL -->
+  <div class="modal-overlay" id="create-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modal-title" style="font-weight:700">Yeni İcazə</h3>
+        <button class="btn-icon" onclick="closeModal('create-modal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="create-form">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Departament</label>
+              <select class="input-field" style="width:100%" id="form-dept" required></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Şöbə</label>
+              <select class="input-field" style="width:100%" id="form-section" required></select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Ad Soyad</label>
+            <input type="text" class="input-field" style="width:100%" id="form-name" required>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Vəzifə</label>
+              <input type="text" class="input-field" style="width:100%" id="form-position" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" class="input-field" style="width:100%" id="form-email" required>
+            </div>
+          </div>
+          <div class="form-group" id="form-group-system">
+            <label class="form-label">Sistem / Proqram</label>
+            <input type="text" class="input-field" style="width:100%" id="form-system">
+          </div>
+          <div class="form-group hidden" id="form-group-category">
+            <label class="form-label">Kateqoriya</label>
+            <select class="input-field" style="width:100%" id="form-category">
+              <option value="">Seçin</option>
+              <option>Social Networking</option>
+              <option>Financial Services</option>
+              <option>News & Media</option>
+              <option>File Sharing</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Access Növü</label>
+            <select class="input-field" style="width:100%" id="form-access" required>
+              <option value="">Seçin</option>
+              <option>Full Access</option>
+              <option>Read Only</option>
+              <option>Admin</option>
+              <option>M - Mütləq</option>
+              <option>S - Sorğu əsasında</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('create-modal')">Ləğv et</button>
+        <button class="btn btn-primary" onclick="submitCreate()">Yadda Saxla</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- APPROVAL MODAL -->
+  <div class="modal-overlay" id="approval-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 style="font-weight:700">Təsdiq Prosesi</h3>
+        <button class="btn-icon" onclick="closeModal('approval-modal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="approval-info" style="background:var(--bb-light-gray); padding:16px; border-radius:8px; margin-bottom:24px;"></div>
+        
+        <div class="approval-flow" id="approval-steps"></div>
+
+        <div id="approval-action-area" class="hidden" style="border-top:1px solid var(--bb-border); padding-top:20px;">
+          <h4 style="margin-bottom:12px; font-weight:600">Qərar verin: <span id="current-approver-name" style="color:var(--bb-red)"></span></h4>
+          <input type="password" class="input-field" style="width:100%; margin-bottom:12px;" id="app-pass" placeholder="Şifrənizi daxil edin">
+          <textarea class="input-field" style="width:100%; margin-bottom:12px; min-height:80px;" id="app-comment" placeholder="Rəy (İmtina zamanı mütləqdir)"></textarea>
+          <div style="display:flex; gap:10px;">
+            <button class="btn btn-primary" style="flex:1" onclick="submitApproval('Approved')">✓ Təsdiq et</button>
+            <button class="btn btn-danger" style="flex:1" onclick="submitApproval('Rejected')">✕ İmtina et</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div class="toast" id="toast">
+    <div id="toast-icon">✓</div>
+    <div id="toast-message">Əməliyyat uğurlu</div>
+  </div>
+
+  <script>
+    // ============================================
+    // CONFIGURATION - UPDATE DEPLOYMENT URL HERE
+    // ============================================
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyayBqonYL8AaPIcdorhRUscHtXmETtxNHcK_PdB32fInkSVPH8r_m2nG6mDBh01gKX/exec'; 
+
+    // STATE MANAGEMENT
+    let state = {
+      users: [],
+      internet: [],
+      approvers: [],
+      currentTab: 'user', // user | internet | approvers
+      currentView: 'table', // table | card | matrix
+      filterDept: '',
+      filterSearch: '',
+      approverData: {} // Cache for approver logic
+    };
+
+    let activeApproval = null;
+
+    // --- INIT ---
+    window.onload = loadData;
+
+    // --- API HANDLER (JSONP) ---
+    function apiRequest(action, data = {}) {
+      return new Promise((resolve, reject) => {
+        const callbackName = 'cb_' + Date.now() + Math.floor(Math.random() * 100000);
+        
+        window[callbackName] = function(response) {
+          delete window[callbackName];
+          document.body.removeChild(document.getElementById(callbackName));
+          resolve(response);
+        };
+
+        const script = document.createElement('script');
+        script.id = callbackName;
+        
+        const params = new URLSearchParams();
+        params.append('action', action);
+        params.append('data', JSON.stringify(data));
+        params.append('callback', callbackName);
+
+        script.src = `${SCRIPT_URL}?${params.toString()}`;
+        script.onerror = () => {
+          delete window[callbackName];
+          if (document.getElementById(callbackName)) document.body.removeChild(document.getElementById(callbackName));
+          reject(new Error("Connection Failed"));
+        };
+
+        document.body.appendChild(script);
+      });
+    }
+
+    // --- DATA LOADING ---
+    async function loadData(showToast = false) {
+      document.getElementById('global-loader').classList.remove('hidden');
+      try {
+        const res = await apiRequest('get_all_data');
+        if (res.success) {
+          state.users = res.users;
+          state.internet = res.internet;
+          state.approvers = res.approvers;
+          
+          populateFilters();
+          renderApproversTable();
+          renderCurrentView();
+          
+          if(showToast) showToastMsg('Məlumatlar yeniləndi');
+        } else {
+          showToastMsg('Xəta: ' + res.error, 'error');
+        }
+      } catch (e) {
+        console.error(e);
+        showToastMsg('Server xətası', 'error');
+      }
+      document.getElementById('global-loader').classList.add('hidden');
+    }
+
+    // --- RENDERING LOGIC ---
+    function switchTab(tab) {
+      state.currentTab = tab;
+      
+      // Update UI Tabs
+      document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+      event.target.classList.add('active');
+
+      // Toggle Areas
+      const mainToolbar = document.getElementById('main-toolbar');
+      const contentArea = document.getElementById('content-area');
+      const approversArea = document.getElementById('approvers-area');
+
+      if (tab === 'approvers') {
+        mainToolbar.classList.add('hidden');
+        contentArea.classList.add('hidden');
+        approversArea.classList.remove('hidden');
+      } else {
+        mainToolbar.classList.remove('hidden');
+        contentArea.classList.remove('hidden');
+        approversArea.classList.add('hidden');
+        renderCurrentView();
+      }
+    }
+
+    function switchView(view) {
+      state.currentView = view;
+      document.querySelectorAll('.view-toggles .btn-icon').forEach((btn, idx) => {
+        const views = ['table', 'card', 'matrix'];
+        btn.classList.toggle('active', views[idx] === view);
+      });
+      renderCurrentView();
+    }
+
+    function getFilteredData() {
+      const rawData = state.currentTab === 'user' ? state.users : state.internet;
+      const term = document.getElementById('search-input').value.toLowerCase();
+      const dept = document.getElementById('filter-dept').value;
+
+      return rawData.filter(item => {
+        const matchDept = !dept || item.Departament === dept;
+        const matchSearch = !term || 
+          item['Ad Soyad'].toLowerCase().includes(term) || 
+          item.ID.toLowerCase().includes(term);
+        return matchDept && matchSearch;
+      });
+    }
+
+    function renderCurrentView() {
+      if (state.currentTab === 'approvers') return;
+      
+      const container = document.getElementById('content-area');
+      const data = getFilteredData();
+      const isUser = state.currentTab === 'user';
+      
+      container.innerHTML = '';
+
+      if (data.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding: 40px; color:var(--bb-gray)">Məlumat tapılmadı</div>`;
+        return;
+      }
+
+      // 1. TABLE VIEW
+      if (state.currentView === 'table') {
+        let html = `<div class="table-wrapper"><table><thead><tr>
+          <th>ID</th><th>Ad Soyad</th><th>Departament</th><th>Vəzifə</th>
+          <th>${isUser ? 'Sistem' : 'Kateqoriya'}</th>
+          <th>Access</th><th>Status</th><th>Təsdiq</th><th>Əməliyyat</th>
+        </tr></thead><tbody>`;
+
+        html += data.map(row => `
+          <tr>
+            <td style="font-weight:700; color:var(--bb-gray)">${row.ID}</td>
+            <td>${row['Ad Soyad']}</td>
+            <td>${row.Departament}<br><span style="font-size:11px; color:var(--bb-gray)">${row.Şöbə}</span></td>
+            <td>${row.Vəzifə}</td>
+            <td>${isUser ? row['Sistem/Proqram'] : row.Kateqoriya}</td>
+            <td>${row['Access Növü']}</td>
+            <td><span class="badge badge-${row.Status.toLowerCase()}">${row.Status}</span></td>
+            <td>${renderStepDots(row)}</td>
+            <td>
+              <button class="btn-icon" onclick="openApproval('${row.ID}')" title="Baxış">👁️</button>
+              <button class="btn-icon" style="color:#ef4444" onclick="deleteItem('${row.ID}')" title="Sil">🗑️</button>
+            </td>
+          </tr>
+        `).join('');
+        html += `</tbody></table></div>`;
+        container.innerHTML = html;
+      }
+
+      // 2. CARD VIEW
+      else if (state.currentView === 'card') {
+        let html = `<div class="grid-view">`;
+        html += data.map(row => `
+          <div class="card" onclick="openApproval('${row.ID}')">
+            <div class="card-header">
+              <span class="card-title">${row['Ad Soyad']}</span>
+              <span class="badge badge-${row.Status.toLowerCase()}">${row.Status}</span>
+            </div>
+            <div class="card-subtitle">${row.Vəzifə}</div>
+            <div style="margin-top:10px; font-size:13px; color:var(--bb-dark-gray)">
+              <div><strong>ID:</strong> ${row.ID}</div>
+              <div><strong>Dept:</strong> ${row.Departament}</div>
+              <div><strong>${isUser ? 'Sistem' : 'Kat'}:</strong> ${isUser ? row['Sistem/Proqram'] : row.Kateqoriya}</div>
+            </div>
+            <div class="card-meta">
+               ${renderStepDots(row)}
+               <span style="font-size:11px; color:var(--bb-gray)">Click to manage</span>
+            </div>
+          </div>
+        `).join('');
+        html += `</div>`;
+        container.innerHTML = html;
+      }
+
+      // 3. MATRIX VIEW
+      else if (state.currentView === 'matrix') {
+        const keys = Object.keys(data[0]);
+        let html = `<div class="matrix-wrapper"><table class="matrix-table"><thead><tr><th class="matrix-row-num">#</th>`;
+        keys.forEach(k => html += `<th>${k}</th>`);
+        html += `</tr></thead><tbody>`;
+        
+        data.forEach((row, idx) => {
+          html += `<tr><td class="matrix-row-num">${idx + 1}</td>`;
+          keys.forEach(k => html += `<td>${row[k]}</td>`);
+          html += `</tr>`;
+        });
+        html += `</tbody></table></div>`;
+        container.innerHTML = html;
+      }
+    }
+
+    function renderApproversTable() {
+      const tbody = document.getElementById('approvers-tbody');
+      tbody.innerHTML = state.approvers.map(r => `
+        <tr>
+          <td><strong>${r.Departament}</strong></td>
+          <td>${r.Şöbə}</td>
+          <td>${r['Dep Rəhbəri']}</td>
+          <td>Nijat Najafov</td>
+          <td>Adigozal Hajiyev</td>
+          <td>Eldar Musayev</td>
+        </tr>
+      `).join('');
+    }
+
+    // --- HELPERS ---
+    function renderStepDots(row) {
+      const steps = ['Dep Rəhbəri', 'Nijat Najafov', 'İnfosec', 'IT Director'];
+      return `<div class="step-dots">
+        ${steps.map(s => {
+          const st = row[s] || 'Pending';
+          return `<div class="dot ${st.toLowerCase()}" title="${s}: ${st}"></div>`;
+        }).join('')}
+      </div>`;
+    }
+
+    function populateFilters() {
+      const depts = new Set([...state.users, ...state.internet].map(i => i.Departament));
+      const sections = new Set([...state.users, ...state.internet].map(i => i.Şöbə));
+      
+      const deptSelect = document.getElementById('filter-dept');
+      const formDept = document.getElementById('form-dept');
+      const formSect = document.getElementById('form-section');
+
+      // Helper to add options
+      const addOpts = (sel, set) => {
+        const val = sel.value; // save current
+        sel.innerHTML = '<option value="">Seçin / Hamısı</option>';
+        Array.from(set).sort().forEach(item => {
+          if(!item) return;
+          const opt = document.createElement('option');
+          opt.value = item; opt.text = item;
+          sel.appendChild(opt);
+        });
+        sel.value = val;
+      };
+
+      addOpts(deptSelect, depts);
+      addOpts(formDept, depts);
+      addOpts(formSect, sections);
+    }
+
+    function showToastMsg(msg, type = 'success') {
+      const t = document.getElementById('toast');
+      const txt = document.getElementById('toast-message');
+      const ico = document.getElementById('toast-icon');
+      
+      t.className = 'toast ' + type + ' active';
+      txt.textContent = msg;
+      ico.textContent = type === 'error' ? '✕' : '✓';
+      
+      setTimeout(() => t.classList.remove('active'), 3000);
+    }
+
+    // --- MODAL LOGIC ---
+    function openCreateModal() {
+      document.getElementById('create-form').reset();
+      const isUser = state.currentTab === 'user';
+      document.getElementById('modal-title').textContent = isUser ? 'Yeni İstifadəçi İcazəsi' : 'Yeni İnternet İcazəsi';
+      document.getElementById('form-group-system').classList.toggle('hidden', !isUser);
+      document.getElementById('form-group-category').classList.toggle('hidden', isUser);
+      document.getElementById('create-modal').classList.add('active');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+
+    async function submitCreate() {
+      const isUser = state.currentTab === 'user';
+      const record = {
+        dept: document.getElementById('form-dept').value,
+        section: document.getElementById('form-section').value,
+        name: document.getElementById('form-name').value,
+        position: document.getElementById('form-position').value,
+        email: document.getElementById('form-email').value,
+        system: isUser ? document.getElementById('form-system').value : '',
+        category: isUser ? '' : document.getElementById('form-category').value,
+        accessType: document.getElementById('form-access').value
+      };
+
+      if (!record.dept || !record.name || !record.accessType) {
+        showToastMsg('Zəhmət olmasa vacib sahələri doldurun', 'error');
+        return;
+      }
+
+      showToastMsg('Məlumat göndərilir...', 'success');
+      closeModal('create-modal');
+
+      try {
+        const res = await apiRequest('create_record', { type: state.currentTab, record });
+        if (res.success) {
+          showToastMsg(res.message);
+          loadData();
+        } else {
+          showToastMsg(res.error, 'error');
+        }
+      } catch (e) { showToastMsg('Xəta baş verdi', 'error'); }
+    }
+
+    async function deleteItem(id) {
+      if (!confirm('Bu qeydi silmək istədiyinizə əminsiniz?')) return;
+      try {
+        const res = await apiRequest('delete_record', { type: state.currentTab, id });
+        if (res.success) { showToastMsg('Silindi'); loadData(); }
+      } catch(e) { showToastMsg('Xəta', 'error'); }
+    }
+
+    // --- APPROVAL LOGIC ---
+    function openApproval(id) {
+      const data = state.currentTab === 'user' ? state.users : state.internet;
+      const item = data.find(i => i.ID === id);
+      if (!item) return;
+
+      activeApproval = { id, type: state.currentTab, item };
+
+      // Render Info
+      document.getElementById('approval-info').innerHTML = `
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:13px;">
+          <div><strong>ID:</strong> ${item.ID}</div>
+          <div><strong>Ad:</strong> ${item['Ad Soyad']}</div>
+          <div><strong>Vəzifə:</strong> ${item.Vəzifə}</div>
+          <div><strong>Dept:</strong> ${item.Departament}</div>
+          <div><strong>Status:</strong> <span class="badge badge-${item.Status.toLowerCase()}">${item.Status}</span></div>
+        </div>
+      `;
+
+      // Define Steps
+      const steps = [
+        { key: 'Dep Rəhbəri', label: 'Dep Rəhbəri' },
+        { key: 'Nijat Najafov', label: 'IT Head' },
+        { key: 'İnfosec', label: 'InfoSec' },
+        { key: 'IT Director', label: 'IT Director' }
+      ];
+
+      // Determine active step
+      let activeStepIdx = -1;
+      
+      if (item.Status !== 'Rejected' && item.Status !== 'Active') {
+        for (let i = 0; i < steps.length; i++) {
+          if (item[steps[i].key] === 'Pending') {
+            activeStepIdx = i;
+            break;
+          }
+        }
+      }
+
+      // Render Visualization
+      let html = '';
+      steps.forEach((s, idx) => {
+        const status = item[s.key];
+        let cls = status.toLowerCase();
+        if (idx === activeStepIdx) cls += ' active';
+        
+        let icon = idx + 1;
+        if (status === 'Approved') icon = '✓';
+        if (status === 'Rejected') icon = '✕';
+
+        html += `
+          <div class="flow-step ${cls}">
+            <div class="step-icon">${icon}</div>
+            <div class="step-label">${s.label}</div>
+            <div style="font-size:10px; color:var(--bb-gray); margin-top:2px;">${status}</div>
+          </div>
+        `;
+      });
+      document.getElementById('approval-steps').innerHTML = html;
+
+      // Logic for Action Area
+      const actionArea = document.getElementById('approval-action-area');
+      const nameSpan = document.getElementById('current-approver-name');
+
+      if (activeStepIdx !== -1) {
+        actionArea.classList.remove('hidden');
+        nameSpan.textContent = steps[activeStepIdx].label;
+        document.getElementById('app-pass').value = '';
+        document.getElementById('app-comment').value = '';
+      } else {
+        actionArea.classList.add('hidden');
+      }
+
+      document.getElementById('approval-modal').classList.add('active');
+    }
+
+    async function submitApproval(status) {
+      const pass = document.getElementById('app-pass').value;
+      const comment = document.getElementById('app-comment').value;
+
+      if (!pass) {
+        showToastMsg('Şifrə daxil edin', 'error');
+        return;
+      }
+      if (status === 'Rejected' && !comment) {
+        showToastMsg('İmtina zamanı rəy yazmaq mütləqdir', 'error');
+        return;
+      }
+
+      // Determine step number again
+      const steps = ['Dep Rəhbəri', 'Nijat Najafov', 'İnfosec', 'IT Director'];
+      let stepNum = 0;
+      for (let i = 0; i < steps.length; i++) {
+        if (activeApproval.item[steps[i]] === 'Pending') {
+          stepNum = i + 1;
+          break;
+        }
+      }
+
+      showToastMsg('Sorğu emal edilir...', 'success');
+      
+      try {
+        const res = await apiRequest('process_approval', {
+          id: activeApproval.id,
+          type: activeApproval.type,
+          step: stepNum,
+          password: pass,
+          comment: comment,
+          status: status
+        });
+
+        if (res.success) {
+          showToastMsg(res.message);
+          closeModal('approval-modal');
+          loadData();
+        } else {
+          showToastMsg(res.error, 'error');
+        }
+      } catch (e) {
+        showToastMsg('Xəta baş verdi', 'error');
+      }
+    }
+  </script>
+</body>
+</html>
